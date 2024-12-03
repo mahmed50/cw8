@@ -1,0 +1,27 @@
+name: cw8
+description: "A new Flutter project."
+publish_to: 'none' # Keep it private
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^1.17.5  # Firebase setup for the app
+  firebase_ml_vision: ^0.13.0  # Firebase ML Kit for image labeling
+  image_picker: ^0.8.5+3  # To pick images from gallery or camera
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    # Optionally add images folder if you want to test with assets
+    - assets/images/

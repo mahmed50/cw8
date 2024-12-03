@@ -1,0 +1,65 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+
+class ImageLabelingPage extends StatefulWidget {
+  @override
+  _ImageLabelingPageState createState() => _ImageLabelingPageState();
+}
+
+class _ImageLabelingPageState extends State<ImageLabelingPage> {
+  File? _image;
+  List<String> _labels = [];
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera); // .gallery for gallery
+
+    if (image != null) {
+      setState(() {
+        _image = File(image.path);
+      });
+      _processImage(image);
+    }
+  }
+
+  Future<void> _processImage(XFile image) async {
+    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(File(image.path));
+    final ImageLabeler labeler = FirebaseVision.instance.imageLabeler();
+    final List<ImageLabel> labels = await labeler.processImage(visionImage);
+
+    setState(() {
+      _labels = labels.map((label) => '${label.text} - Confidence: ${label.confidence.toStringAsFixed(2)}').toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Image Labeling with Firebase ML')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: Text('Capture Image'),
+            ),
+            if (_image != null) Image.file(_image!),
+            SizedBox(height: 20),
+            Text('Detected Labels:'),
+            if (_labels.isNotEmpty)
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: _labels.length,
+                itemBuilder: (context, index) {
+                  return ListTile(title: Text(_labels[index]));
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
